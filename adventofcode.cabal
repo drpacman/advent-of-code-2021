@@ -22,7 +22,7 @@ maintainer:         paul.caporn@bbc.co.uk
 extra-source-files: CHANGELOG.md
 
 library
-    exposed-modules:  Day1, Utils
+    exposed-modules:  Day1, Day2, Utils
 
     -- Modules included in this library but not exported.
     -- other-modules:
