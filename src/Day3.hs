@@ -9,7 +9,10 @@ toBits line = map (== '1') line
 
 
 getMax :: [(Bool, Int)] -> Bool
-getMax entry = if x > y then b1 else if x == y then True else b2
+getMax entry 
+    | x > y = b1 
+    | x == y = True
+    | otherwise = b2
     where 
         (b1, x) = head entry
         (b2, y) = head (tail entry) 
