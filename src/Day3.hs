@@ -7,6 +7,8 @@ import Data.List (group, transpose, sort)
 toBits :: String -> [Bool]
 toBits = map (== '1')
 
+toInt :: [Bool] -> Int 
+toInt = foldl (\acc x -> 2*acc + if x then 1 else 0) 0
 
 getMax :: [(Bool, Int)] -> Bool
 getMax entry 
@@ -16,9 +18,6 @@ getMax entry
     where 
         (b1, x) = head entry
         (b2, y) = head (tail entry) 
-
-toInt :: [Bool] -> Int 
-toInt = foldl (\acc x -> 2*acc + if x then 1 else 0) 0
 
 part1 :: PuzzlePart Int
 part1 input = 
