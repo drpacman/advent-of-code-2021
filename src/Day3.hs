@@ -5,7 +5,7 @@ import Debug.Trace
 import Data.List (group, transpose, sort)
 
 toBits :: String -> [Bool]
-toBits line = map (== '1') line
+toBits = map (== '1')
 
 
 getMax :: [(Bool, Int)] -> Bool
