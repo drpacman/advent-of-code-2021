@@ -24,13 +24,13 @@ part1 input =
         columns = transpose (map toBits input)
         countsPerColumn = map (map (\g -> (head g, length g)) . group . sort) columns
         gamma = map getMax countsPerColumn
-        epsilon = map (not) gamma
+        epsilon = map not gamma
 
 calculatePart2 :: [[Bool]] -> (Bool -> Bool) -> Int -> Int
-calculatePart2 (row:[]) f _ = toInt row
+calculatePart2 [row] f _ = toInt row
 calculatePart2 rows f pos = calculatePart2 remainder f (pos+1)
     where
-        column = (transpose rows) !! pos
+        column = transpose rows !! pos
         countColumn = map (\g -> (head g, length g)) $ group $ sort column
         requiredValue = f (getMax countColumn)
         remainder = filter (\x ->  x!!pos == requiredValue) rows
