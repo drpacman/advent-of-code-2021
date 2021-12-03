@@ -28,6 +28,14 @@ part1 input =
         gamma = map getMax countsPerColumn
         epsilon = map not gamma
 
+part2 :: PuzzlePart Int
+part2 input =
+    oxygen*co2
+    where
+        rows = map toBits input
+        oxygen = calculatePart2 rows id 0 
+        co2 = calculatePart2 rows not 0 
+
 calculatePart2 :: [[Bool]] -> (Bool -> Bool) -> Int -> Int
 calculatePart2 [row] f _ = toInt row
 calculatePart2 rows f pos = calculatePart2 remainder f (pos+1)
@@ -36,13 +44,4 @@ calculatePart2 rows f pos = calculatePart2 remainder f (pos+1)
         countColumn = map (\g -> (head g, length g)) $ group $ sort column
         requiredValue = f (getMax countColumn)
         remainder = filter (\x ->  x!!pos == requiredValue) rows
-
-part2 :: PuzzlePart Int
-part2 input =
-    oxygen*co2
-    where
-        rows = map toBits input
-        oxygen = calculatePart2 rows id 0 
-        co2 = calculatePart2 rows not 0 
-        
         
