@@ -38,10 +38,10 @@ part2 input =
 
 calculatePart2 :: [[Bool]] -> (Bool -> Bool) -> Int -> [Bool]
 calculatePart2 [row] f _ = row
-calculatePart2 rows f pos = calculatePart2 remainder f (pos+1)
+calculatePart2 rows f pos = calculatePart2 rows' f (pos+1)
     where
         column = transpose rows !! pos
         countColumn = map (\g -> (head g, length g)) $ group $ sort column
         requiredValue = f (getMax countColumn)
-        remainder = filter (\x ->  x!!pos == requiredValue) rows
+        rows' = filter (\x ->  x!!pos == requiredValue) rows
         
