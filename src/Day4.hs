@@ -9,19 +9,19 @@ import Debug.Trace ()
 data Bingo = Game [Int] [Board] deriving (Show)
 type Board = [[Int]]
 
-toBoard :: [String] -> Board
-toBoard = map parseLine
-
-parseLine :: [Char] -> [Int]
-parseLine line = map read $ words line
-
-toBingo :: [String] -> Bingo
-toBingo input = 
+toBingoGame :: [String] -> Bingo
+toBingoGame input = 
     Game balls boards
     where 
         balls = map read $ splitOn "," (head input)
         blocks = map tail $ chunksOf 6 (tail input)
         boards = map toBoard blocks 
+
+toBoard :: [String] -> Board
+toBoard = map parseLine
+
+parseLine :: [Char] -> [Int]
+parseLine line = map read $ words line
 
 findWinningBoard :: Bingo -> [Int] -> ([Int], Board)
 findWinningBoard (Game (b:balls) boards) x = 
@@ -70,12 +70,12 @@ score balls board =
 part1 :: PuzzlePart Int 
 part1 input = score balls board
     where
-        bingo = toBingo input
+        bingo = toBingoGame input
         (balls, board) = findWinningBoard bingo []
         
 
 part2 :: PuzzlePart Int 
 part2 input = score balls board
     where
-        bingo = toBingo input
+        bingo = toBingoGame input
         (balls, board) = findLastWinningBoard bingo []
