@@ -3,8 +3,8 @@ module Day4(part1,part2) where
 import Utils (PuzzlePart)
 import Data.List (find, transpose, sort, intersect)
 import Data.List.Split (splitOn, chunksOf)
-import Data.Maybe
-import Debug.Trace
+import Data.Maybe ( isJust )
+import Debug.Trace ()
 
 data Bingo = Game [Int] [Board] deriving (Show)
 type Board = [[Int]]
