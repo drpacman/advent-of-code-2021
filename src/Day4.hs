@@ -9,6 +9,8 @@ import Debug.Trace ()
 data Bingo = Game [Int] [Board] deriving (Show)
 type Board = [[Int]]
 
+-- read first line, then blocks of 6 (blank line + 5 lines for the board) 
+-- and convert each of those 5 lines to a board
 toBingoGame :: [String] -> Bingo
 toBingoGame input = 
     Game balls boards
@@ -17,9 +19,11 @@ toBingoGame input =
         blocks = map tail $ chunksOf 6 (tail input)
         boards = map toBoard blocks 
 
+-- convert lines into a board of Ints
 toBoard :: [String] -> Board
 toBoard = map parseLine
 
+-- convert variably spaced numbers to list of Ints
 parseLine :: [Char] -> [Int]
 parseLine line = map read $ words line
 
