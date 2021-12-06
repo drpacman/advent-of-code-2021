@@ -13,11 +13,13 @@ runRound entries = if Data.Map.member 6 withNewEntries
                     else
                         Data.Map.insert 6 newCount withNewEntries
                     where 
+                        -- find how count of entries with zero days left
                         newCount = findWithDefault 0 0 entries 
+                        -- drop them
                         droppedZeros = delete 0 entries
-                        -- decrement the entries
+                        -- decrement all the remaining entries
                         existing = Data.Map.mapKeys (\x -> x-1) droppedZeros 
-                        -- add new entries
+                        -- add new entries, they start with 8 days
                         withNewEntries = Data.Map.insert 8 newCount existing
 
 calculate :: [String] -> Int -> Int
