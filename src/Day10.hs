@@ -41,14 +41,14 @@ scoreLine line = foldl (\acc c -> acc*5 + scoreChar c) 0 line
 part1 :: PuzzlePart Int 
 part1 input = trace (show results) sum scores
     where
-        results = map (\line -> trace (show "\nLine " ++ line) parse line []) input
+        results = map (\line -> parse line []) input
         errors = filter isLeft results
         scores = map score errors
 
 part2 :: PuzzlePart Int 
 part2 input = trace (show scores) (sort scores) !! (middleScore - 1)
     where
-        results = map (\line -> trace (show "\nLine " ++ line) parse line []) input
+        results = map (\line -> parse line []) input
         entries = filter isRight results
         scores = map (\(Right remainder) -> scoreLine remainder) entries
         middleScore = div (1 + length scores) 2
