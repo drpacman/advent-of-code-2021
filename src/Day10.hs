@@ -8,7 +8,7 @@ parse :: [Char] -> [Char] -> Either Char [Char]
 parse [] chunks = Right chunks
 parse (x:xs) chunks = 
     case x of '[' -> parse xs (x:chunks)
-              ']' -> if head chunks /= '[' then trace (show chunks) Left x else parse xs (tail chunks)
+              ']' -> if head chunks /= '[' then Left x else parse xs (tail chunks)
               '(' -> parse xs (x:chunks)
               ')' -> if head chunks /= '(' then Left x else parse xs (tail chunks)
               '{' -> parse xs (x:chunks)
@@ -39,16 +39,16 @@ scoreLine :: [Char] -> Int
 scoreLine line = foldl (\acc c -> acc*5 + scoreChar c) 0 line
 
 part1 :: PuzzlePart Int 
-part1 input = trace (show results) sum scores
+part1 input = sum scores
     where
         results = map (\line -> parse line []) input
         errors = filter isLeft results
         scores = map score errors
 
 part2 :: PuzzlePart Int 
-part2 input = trace (show scores) (sort scores) !! (middleScore - 1)
+part2 input = (sort scores) !! middleScoreIndex
     where
         results = map (\line -> parse line []) input
         entries = filter isRight results
         scores = map (\(Right remainder) -> scoreLine remainder) entries
-        middleScore = div (1 + length scores) 2
+        middleScoreIndex = (div (1 + length scores) 2) - 1
