@@ -9,6 +9,7 @@ import Data.Maybe
 import Data.Char
 import Data.Monoid (All)
 
+-- path is the nodes and a flag indicating if a small cave can be revisited
 type Path = ([String], Bool)
 type Graph = Map String [String]
 type AllowedEntryFilter = (String -> Path -> Bool)
