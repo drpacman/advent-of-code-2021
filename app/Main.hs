@@ -1,11 +1,11 @@
 module Main where
 
-import Day13
+import Day14
 import Utils(PuzzlePart)
 import Text.Printf
 
 main :: IO ()
 main = do
-  contents <- readFile ("inputs/day13.txt")    
+  contents <- readFile ("inputs/day14.txt")    
   printf "Part 1 => %s\n" $ show (part1 (lines contents))
-  printf "Part 2 => %s\n" $ (part2 (lines contents))
+  printf "Part 2 => %s\n" $ show (part2 (lines contents))
