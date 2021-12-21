@@ -11,14 +11,14 @@ import Debug.Trace
 type Grid = [[Int]]
 type Coord = (Int, Int)
 
-newtype ParentWithCost = Path (Coord, Int) deriving (Eq)
+newtype Node = Node (Coord, Int) deriving (Eq)
 
-instance Ord ParentWithCost where
-    compare (Path (_, c1)) (Path(_, c2)) = compare c1 c2
+instance Ord Node where
+    compare (Node (_, c1)) (Node(_, c2)) = compare c1 c2
 
 data Dijkstra = Dijkstra {
-    shortestDists :: Map Coord (Coord, Int),
-    distances :: Map Coord (Coord, Int),
+    shortestDists :: Map Coord Node,
+    distances :: Map Coord Node,
     current :: Coord
 }
 
@@ -37,38 +37,51 @@ neighbours grid (x,y) = Data.List.filter (\(x,y) -> x >= 0 && x < width && y >= 
 initDijsktra :: Grid -> Dijkstra
 initDijsktra grid = Dijkstra { shortestDists = shortestDists, distances = distances, current = (0,0) }
     where
-        shortestDists = fromList [ ((0,0), ((0,0),0)) ]
+        shortestDists = fromList [ ((0,0), Node ((0,0),0)) ]
         width = length (head grid)
         height = length grid
-        distances = Map.delete (0,0) $ Map.fromList [((x,y), ((x,y),999999999)) | y <- [0..height-1], x <- [0..width-1]]
+        distances = Map.empty
 
-updateValue :: Coord -> Int -> Maybe (Coord, Int) -> Maybe (Coord, Int) 
-updateValue parent x (Just (p, n)) = if n > x then Just (parent, x) else Just (p, n)
-updateValue parent x Nothing  = Just (parent, x)
+updateValue :: Coord -> Int -> Maybe Node -> Maybe Node
+updateValue parent x (Just (Node(p, n))) = if n > x then Just (Node (parent, x)) else Just (Node (p, n))
+updateValue parent x Nothing  = Just (Node(parent, x))
 
 walkGrid :: Grid -> Dijkstra -> Coord -> Dijkstra
 walkGrid grid dijkstra target = if c == target then  dijkstra' else walkGrid grid dijkstra' target
     where 
         -- get neighbours for current that aren't in the existing shortest path
-        curr = trace (show (length (distances dijkstra))) current dijkstra
+        curr = current dijkstra
         nextEntries = Data.List.filter (\c -> notMember c (shortestDists dijkstra)) $ neighbours grid curr
         -- get distance to current node
-        (_, dist) = (shortestDists dijkstra) ! curr       
+        Node (_, dist) = (shortestDists dijkstra) ! curr       
         -- for each neighbour, update distance with new min value
-        distances' = Data.List.foldl (\ds c -> alter (updateValue curr (dist+(value c grid))) c ds) (distances dijkstra) nextEntries
+        distances' = Data.List.foldl (\ds c -> let 
+                                                   updater = updateValue curr
+                                                   entryValue = value c grid
+                                                   newValue = dist+entryValue
+                                                in
+                                                    alter (updater newValue) c ds) (distances dijkstra) nextEntries
         -- get minimal entry 
-        (c, (parent, distance)) = Data.List.minimumBy (comparing (\(c, (p, n)) -> n)) $ toList distances'        
+        (c, Node (parent, distance)) = Data.List.minimumBy (comparing (\(c, Node (p, n)) -> n)) $ toList distances'        
         -- update values
         dijkstra' = Dijkstra { 
-            shortestDists = Map.insert c (parent, distance) (shortestDists dijkstra), 
+            shortestDists = Map.insert c (Node(parent, distance)) (shortestDists dijkstra), 
             distances = Map.delete c distances', 
             current = c 
         }
 
 calculatePath :: Dijkstra -> Coord -> [Coord]
-calculatePath dijkstra target = reverse $ Data.List.unfoldr (\c -> if c == (0,0) then Nothing else Just (c, fst (dists ! c))) target
-    where
-        dists= shortestDists dijkstra
+calculatePath dijkstra target = reverse $ 
+                Data.List.unfoldr (\c -> 
+                    if c == (0,0) 
+                        then Nothing 
+                    else 
+                        let 
+                            dists= shortestDists dijkstra
+                            Node (parent, _) = dists ! c
+                        in
+                            Just (c, parent)
+                 ) target
 
 
 expandRow ::  Int -> [Int] -> [Int]
@@ -78,7 +91,7 @@ expandGrid :: Grid -> Int -> Grid
 expandGrid grid n = Data.List.map (expandRow n) grid
 
 part1  :: PuzzlePart Int 
-part1 input = snd ((shortestDists ds') ! target)
+part1 input = result
     where 
         grid = toGrid input
         ds = initDijsktra grid
@@ -86,9 +99,10 @@ part1 input = snd ((shortestDists ds') ! target)
         height = length grid
         target = (width-1, height-1)
         ds' = walkGrid grid ds target
+        Node (_, result) = (shortestDists ds') ! target
 
 part2 :: PuzzlePart Int
-part2 input = snd ((shortestDists ds') ! target)
+part2 input = result
     where 
         baseGrid = toGrid input
         expandedGrid = Data.List.concatMap (expandGrid baseGrid) [0..4]
@@ -97,3 +111,4 @@ part2 input = snd ((shortestDists ds') ! target)
         height = length expandedGrid
         target = (width-1, height-1)
         ds' = walkGrid expandedGrid ds target
+        Node (_, result) = (shortestDists ds') ! target

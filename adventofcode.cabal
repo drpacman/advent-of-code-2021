@@ -29,7 +29,7 @@ library
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
-    build-depends:    split ^>=0.2.3.4, base ^>=4.14.3.0, containers, regex-posix
+    build-depends:    split ^>=0.2.3.4, base ^>=4.14.3.0, containers, regex-posix, heap
     hs-source-dirs:   src
     default-language: Haskell2010
 
