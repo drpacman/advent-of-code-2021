@@ -83,9 +83,9 @@ parsePackets bits count packets = parsePackets bits' (count - 1) (packet:packets
                                     where 
                                         (packet, bits') = parsePacket bits
 
-score :: Packet -> Int -> Int 
-score (Number v _) n = n + v
-score (Packet v t ps) n = foldl (\acc p -> score p acc) (n+v) ps 
+scorePart1 :: Packet -> Int -> Int 
+scorePart1 (Number v _) n = n + v
+scorePart1 (Packet v t ps) n = foldl (\acc p -> scorePart1 p acc) (n+v) ps 
 
 scorePart2 :: Packet -> Int 
 scorePart2 (Number v n) = n
@@ -98,7 +98,7 @@ scorePart2 (Packet v 6 [p1,p2]) = if scorePart2 p1 < scorePart2 p2 then 1 else 0
 scorePart2 (Packet v 7 [p1,p2]) = if scorePart2 p1 == scorePart2 p2 then 1 else 0 
 
 part1 :: PuzzlePart Int 
-part1  input = score p 0
+part1  input = scorePart1 p 0
     where 
         bits = toBinary (head input)
         (p, _) = parsePacket bits
