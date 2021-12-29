@@ -1,4 +1,4 @@
-module Day20(part1) where
+module Day20(part1, part2) where
 import Utils (PuzzlePart)
 import Data.List.Split
 
@@ -46,3 +46,10 @@ part1 input = sum (concat result)
         (lookup, image) = parse input
         updater = updateEntry lookup 
         result = updater 1 $ updater 0 image
+
+part2 :: PuzzlePart Int 
+part2 input = sum (concat result)
+    where
+        (lookup, image) = parse input
+        updater = updateEntry lookup 
+        result = foldl (\image i -> updater i image) image [0..49]
