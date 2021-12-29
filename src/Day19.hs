@@ -1,4 +1,4 @@
-module Day19(part1) where
+module Day19(part1, part2) where
 import Utils
 import Data.List
 import Data.Maybe
@@ -81,7 +81,7 @@ match candidate base =
                   ) beaconWithIntersections 
         
 
-findBeacons :: [Coord] -> [Coord] -> Maybe [Coord]
+findBeacons :: [Coord] -> [Coord] -> Maybe ([Coord], Coord)
 findBeacons candidate base = if null ts then Nothing else head ts
     where 
         ts = filter isJust $ map (\transform -> 
@@ -95,30 +95,38 @@ findBeacons candidate base = if null ts then Nothing else head ts
                                 shiftedBeacons = map (\(x, y, z) -> (x - offsetX, y - offsetY, z - offsetZ)) candidateBeacons
                             in
                                 --trace ("base: " ++ show candidate ++ " - Shifted - " ++ show shiftedBeacons) 
-                                Just shiftedBeacons
+                                Just (shiftedBeacons, (offsetX, offsetY, offsetZ))
                         Nothing ->
                             Nothing
                 ) transforms
 
-resolveScans :: [[Coord]] -> [[Coord]] -> [[Coord]] -> [Coord]
-resolveScans [] _ beacons = foldl union [] beacons    
-resolveScans unmatched targets beacons =
+resolveScans :: [[Coord]] -> [[Coord]] -> [([Coord], Coord)] -> ([Coord], [Coord])
+resolveScans [] _ beaconsWithOffsets = 
+    let
+        beacons = foldl union [] (map fst beaconsWithOffsets)
+        offsets = foldl (\acc (_, offset) -> offset:acc ) [] beaconsWithOffsets
+    in
+        (beacons, offsets)
+resolveScans unmatched targets beaconsWithOffsets =
     case trace ("Finding beacons " ++ show (length unmatched)) findBeacons candidate target of
-        -- we found a match, get its offset, transform and list of beacons relative to the current scan
-        Just bs ->
-            let beacons' = bs:beacons in
-            resolveScans (tail unmatched) beacons' beacons'
+        Just (bs, offset) ->
+            let 
+                beaconsWithOffsets' = (bs,offset):beaconsWithOffsets 
+                targets = map fst beaconsWithOffsets'
+            in
+            resolveScans (tail unmatched) targets beaconsWithOffsets'
         Nothing ->
             if length targets == 1 then
                 let 
                     -- rotate the scans as we search for the next match
                     unmatched' = tail unmatched ++ [candidate]
+                    targets = map fst beaconsWithOffsets
                 in
                 --trace "Rotated scan"
-                resolveScans unmatched' beacons beacons 
+                resolveScans unmatched' targets beaconsWithOffsets 
             else
                 --trace "Try next target set of beacons"
-                resolveScans unmatched (tail targets) beacons 
+                resolveScans unmatched (tail targets) beaconsWithOffsets 
     where
         candidate = head unmatched
         target = head targets   
@@ -128,4 +136,13 @@ part1 input = trace (show beacons) length beacons
     where
         scans = toScans (tail input) [] []
         scan0 = head scans
-        beacons = resolveScans ((tail scans)) [scan0] [scan0]
+        (beacons, _) = resolveScans ((tail scans)) [scan0] [(scan0, (0,0,0))]
+
+part2 :: PuzzlePart Int
+part2 input = maximum differences
+    where
+        scans = toScans (tail input) [] []
+        scan0 = head scans
+        (_, offsets) = resolveScans ((tail scans)) [scan0] [(scan0, (0,0,0))]
+        scannerPairs = [ (a,b) | a <- offsets, b <- offsets ]
+        differences = map (\((x1,y1,z1),(x2,y2,z2)) -> (abs(x1-x2) + abs(y1-y2) + abs(z1-z2))) scannerPairs
