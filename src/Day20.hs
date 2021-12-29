@@ -40,16 +40,15 @@ updateEntry lookup iteration image =
         infiniteValue = if even iteration then last lookup else head lookup
         image' = [ lookup !! toValue infiniteValue x y image | y <- [-1..height], x <- [-1..width]]
 
-part1 :: PuzzlePart Int 
-part1 input = sum (concat result)
+process :: [String] -> Int -> Int 
+process input times =
+    sum (concat result)
     where
         (lookup, image) = parse input
-        updater = updateEntry lookup 
-        result = updater 1 $ updater 0 image
+        result = foldl (\image i -> updateEntry lookup i image) image [0..(times-1)]
+
+part1 :: PuzzlePart Int 
+part1 input = process input 2
 
 part2 :: PuzzlePart Int 
-part2 input = sum (concat result)
-    where
-        (lookup, image) = parse input
-        updater = updateEntry lookup 
-        result = foldl (\image i -> updater i image) image [0..49]
+part2 input = process input 50
