@@ -81,61 +81,44 @@ match candidate base =
                   ) beaconWithIntersections 
         
 
-findBeacons :: [Coord] -> [Coord] -> Maybe (Coord, Coord -> Coord, [Coord])
+findBeacons :: [Coord] -> [Coord] -> Maybe [Coord]
 findBeacons candidate base = if null ts then Nothing else head ts
     where 
         ts = filter isJust $ map (\transform -> 
                     case match (map transform candidate) base of
-                        Just ((x1,y1,z1), (x2,y2,z2)) ->
+                        Just (baseBeacon, candidateBeacon) ->
                             let 
                                 candidateBeacons = map transform candidate
-                                offset = (x1-x2, y1-y2, z1-z2)
+                                (x1,y1,z1) = baseBeacon
+                                (x2,y2,z2) = candidateBeacon
+                                (offsetX, offsetY, offsetZ) = (x2-x1, y2-y1, z2-z1)
+                                shiftedBeacons = map (\(x, y, z) -> (x - offsetX, y - offsetY, z - offsetZ)) candidateBeacons
                             in
-                                 Just (offset, transform, shiftToOffset offset candidateBeacons)
+                                --trace ("base: " ++ show candidate ++ " - Shifted - " ++ show shiftedBeacons) 
+                                Just shiftedBeacons
                         Nothing ->
                             Nothing
                 ) transforms
--- walk scans
--- for current scan, find next match, transform and offset
--- apply transform to current transform, apply offset to current offset
--- find next matching scan from scans
-resolveScans :: [[Coord]] -> [[Coord]] ->  Data.Map.Map [Coord] (Coord, (Coord->Coord)) -> [Coord] -> [Coord]
-resolveScans [] _ scanMap beacons = --beacons
-    Data.Map.foldrWithKey (\k (o,t) bs -> union bs (shiftToOffset o (map t k))) Map.empty scanMap
-resolveScans unmatched targets scanMap beacons =
-    case trace ("finding beacons " ++ show (length unmatched)) findBeacons candidate target of
+
+resolveScans :: [[Coord]] -> [[Coord]] -> [[Coord]] -> [Coord]
+resolveScans [] _ beacons = foldl union [] beacons    
+resolveScans unmatched targets beacons =
+    case trace ("Finding beacons " ++ show (length unmatched)) findBeacons candidate target of
         -- we found a match, get its offset, transform and list of beacons relative to the current scan
-        Just (offset, transform, bs) ->
-            let 
-                -- transform matching scan to be same as scanner zero
-                scan' = map transform candidate
-                (x,y,z) = offset
-                ((x0, y0, z0), t) = (scanMap Data.Map.! target)
-                offsetFromZero' = (x+x0, y+y0, z+z0)
-                scanMap' = Data.Map.insert scan' (offsetFromZero', transform) scanMap 
-                -- transform beacons relative to scanner zero
-                beaconsRelativeToZero = map transform bs
-                beacons' = union beacons (shiftToOffset offsetFromZero' beaconsRelativeToZero)
-            in
-            trace ("Found beacon for " ++ show (head scan') ++ 
-                   "--" ++ 
-                   show (x,y,z) ++ 
-                   " -- " ++ 
-                   show (transform (1,2,3)) ++ 
-                   " -- " ++ 
-                   show offsetFromZero')
-            resolveScans (tail unmatched) (Data.Map.keys scanMap) scanMap' beacons'
+        Just bs ->
+            let beacons' = bs:beacons in
+            resolveScans (tail unmatched) beacons' beacons'
         Nothing ->
             if length targets == 1 then
                 let 
                     -- rotate the scans as we search for the next match
                     unmatched' = tail unmatched ++ [candidate]
                 in
-                trace ("Rotated scan")
-                resolveScans unmatched' (Data.Map.keys scanMap) scanMap beacons 
+                --trace "Rotated scan"
+                resolveScans unmatched' beacons beacons 
             else
-                trace ("Try next target")
-                resolveScans unmatched (tail targets) scanMap beacons 
+                --trace "Try next target set of beacons"
+                resolveScans unmatched (tail targets) beacons 
     where
         candidate = head unmatched
         target = head targets   
@@ -144,6 +127,5 @@ part1 :: PuzzlePart Int
 part1 input = trace (show beacons) length beacons
     where
         scans = toScans (tail input) [] []
-        scan0 = (head scans)
-        scanMap = Data.Map.fromList [( scan0, ((0,0,0), id) )]
-        beacons = resolveScans (reverse (tail scans)) [scan0] scanMap []
+        scan0 = head scans
+        beacons = resolveScans ((tail scans)) [scan0] [scan0]
