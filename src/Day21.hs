@@ -30,10 +30,6 @@ playPart1 die p1 p2
 part1 :: Int
 part1 = playPart1 0 (8,0) (2,0)
 
--- value and number of times it will occur 
-rollPart2 :: [(Int, Int)]
-rollPart2 = [(3,1),(4,3),(5,6),(6,7),(7,6),(8,3),(9,1)]
-
 data GameState = GameState {
     turn :: Int,
     pos :: Int,
@@ -52,8 +48,11 @@ playRoundPart2 = concatMap (\part ->
                                     score = score part + 1 + pos',
                                     count = count part * toInteger times
                                 }
-                        ) rollPart2
+                        ) rolls
                     )
+        where 
+            -- all possible rolls as roll value and the number of times it could occur
+            rolls = [(3,1),(4,3),(5,6),(6,7),(7,6),(8,3),(9,1)]
 
 data GameOutcome = GameOutcome {
     iter :: Int,
@@ -79,6 +78,7 @@ part2 = maximum [winsP1, winsP2]
     where
         player1 = outcomesForPosition 8
         player2 = outcomesForPosition 2
+        -- the max number of rounds possible is the max which player1 could possibly take
         rounds = length player1
         (winsP1, winsP2) = foldl (\acc round -> 
                           let 
