@@ -1,0 +1,4 @@
+packages: *.cabal
+library-profiling: False
+profiling: False
+profiling-detail:all-functions
