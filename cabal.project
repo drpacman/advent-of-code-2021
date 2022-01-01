@@ -1,4 +1,4 @@
-packages: *.cabal
+packages: adventofcode.cabal
 library-profiling: False
 profiling: False
 profiling-detail:all-functions
