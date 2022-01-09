@@ -24,12 +24,11 @@ maintainer:         paul.caporn@bbc.co.uk
 library
     ghc-options: 
         -O3
-        -threaded
     exposed-modules:  Day1, Day2, Day3, Day4, Day5, 
                       Day6, Day7, Day8, Day9, Day10, 
                       Day11, Day12, Day13, Day14, Day15, 
                       Day16, Day17, Day18, Day19, Day20,
-                      Day21, Day22, Utils
+                      Day21, Day22, Day23, Utils
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -37,7 +36,7 @@ library
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     default-language: Haskell2010
-    build-depends:    split ^>=0.2.3.4, base ^>=4.14.3.0, containers, regex-posix, heap
+    build-depends:    split ^>=0.2.3.4, base ^>=4.14.3.0, containers, regex-posix, heap, pqueue
     hs-source-dirs:   src
 
 executable adventofcode
