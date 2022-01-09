@@ -2,4 +2,3 @@ packages: adventofcode.cabal
 library-profiling: False
 profiling: False
 profiling-detail:all-functions
-optimization: 2

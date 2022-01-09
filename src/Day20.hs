@@ -7,7 +7,7 @@ parse :: [String] -> ([Int], [[Int]])
 parse input = (lookupTable, image)
     where
         lookupTable = map toInt (head input)
-        image = map (\row -> map toInt row) (drop 2 input)
+        image = map (map toInt) (drop 2 input)
 
 toInt :: Char -> Int 
 toInt c = if c == '#' then 1 else 0
@@ -45,7 +45,7 @@ process input times =
     sum (concat result)
     where
         (lookup, image) = parse input
-        result = foldl (\image i -> updateEntry lookup i image) image [0..(times-1)]
+        result = foldl (flip (updateEntry lookup)) image [0..(times-1)]
 
 part1 :: PuzzlePart Int 
 part1 input = process input 2

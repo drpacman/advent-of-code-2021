@@ -7,7 +7,7 @@ import Text.Regex.Posix
 import Data.Maybe
 import Data.List (groupBy, sortOn)
 
-data Cuboid = Cuboid ((Int, Int, Int), (Int, Int, Int)) deriving (Show, Eq, Ord)
+newtype Cuboid = Cuboid ((Int, Int, Int), (Int, Int, Int)) deriving (Show, Eq, Ord)
 
 toCuboid :: String -> (Bool, Cuboid)
 toCuboid line =
